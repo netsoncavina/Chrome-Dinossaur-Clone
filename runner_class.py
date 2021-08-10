@@ -6,12 +6,24 @@ from sys import exit
 largura  = 800
 altura = 400
 
+def display_score():
+    current_time = pygame.time.get_ticks() - start_time
+    score_surface = font.render(f'{int(current_time/500)}', False, (64,64,64)) # Renderiza a fonte (texto, arredondar as bordas, cor)
+    score_rect = score_surface.get_rect(center = (400,50))
+    # Fundo para o score
+    pygame.draw.rect(screen,(192,232,236),score_rect)
+    pygame.draw.rect(screen,(192,232,236),score_rect,10)
+    screen.blit(score_surface,score_rect)
+
+
+
 pygame.init() #Inicializar o pygame
 screen = pygame.display.set_mode((largura,altura))
 pygame.display.set_caption('Runner')
 clock = pygame.time.Clock() # Clock para definir FPS
 font = pygame.font.Font("font/Pixeltype.ttf",50) # Escolha da fonte para os textos (font_type,font_size)
 game_active = True # Define o estado do jogo
+start_time = 0
 
 
 # test_surface = pygame.Surface((100,200)) #Criação da nova superficie
@@ -20,8 +32,7 @@ game_active = True # Define o estado do jogo
 sky_surface = pygame.image.load("graphics/Sky.png").convert() # .convert() ajuda o pygame a trabalhar melhor com as imagens
 ground_surface = pygame.image.load("graphics/ground.png").convert()
 
-score_surface = font.render('My game', False, (64,64,64)) # Renderiza a fonte (texto, arredondar as bordas, cor)
-score_rect = score_surface.get_rect(center = (400,50))
+
 
 snail_surface = pygame.image.load("graphics/snail/snail1.png").convert_alpha() # _alpha é utilizado para manter os valores alpha originais
 snail_rect = snail_surface.get_rect(midbottom = (600,300))
@@ -48,6 +59,7 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
         else:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 snail_rect.left = 820
+                start_time = pygame.time.get_ticks()
                 game_active = True
 
       
@@ -56,10 +68,9 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
         screen.blit(sky_surface,(0,0)) # Coloca uma superficie sobre a outra (superficie,posição) 
         screen.blit(ground_surface,(0,300))
 
-        # Fundo para o score
-        pygame.draw.rect(screen,(192,232,236),score_rect)
-        pygame.draw.rect(screen,(192,232,236),score_rect,10)
-        screen.blit(score_surface,score_rect)
+        display_score()
+       
+        
         
         # player_rect.left += 1
         snail_rect.x -= 4
