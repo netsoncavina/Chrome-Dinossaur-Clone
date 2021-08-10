@@ -1,1 +1,1 @@
- # player_rect.left += 1
+score_active = True
