@@ -37,11 +37,11 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
             exit() # Para finalizar sem erro
 
         if event.type == pygame.MOUSEBUTTONDOWN: # Mecânica de pulo, mas com o mouse 
-            if player_rect.collidepoint(event.pos):
+            if player_rect.collidepoint(event.pos) and player_rect.bottom >= 300:
                 player_gravity -= 5
 
         if event.type == pygame.KEYDOWN: # Verifica se um botão do teclado foi pressionado
-            if event.key == pygame.K_SPACE: # Verifica se o botão pressionado foi a barra de espaço 
+            if event.key == pygame.K_SPACE and player_rect.bottom >= 300: # Verifica se o botão pressionado foi a barra de espaço e se o player está no chão 
                 player_gravity -= 5
         # if event.type == pygame.KEYUP: # Verifica se o botão não está mais sendo pressionado
         #     player_rect.bottom += 20
@@ -53,7 +53,7 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
     pygame.draw.rect(screen,(192,232,236),score_rect,10)
     
     screen.blit(score_surface,score_rect)
-    player_rect.left += 1
+    # player_rect.left += 1
     snail_rect.x -= 3
     if snail_rect.right <= 0:
         snail_rect.left = 820
@@ -65,6 +65,9 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
     # Player
     player_gravity += 0.05
     player_rect.y += player_gravity
+    if player_rect.bottom >= 300:
+        player_rect.bottom = 300
+    
     screen.blit(player_surface,player_rect)
 
 

@@ -1,2 +1,1 @@
-else:
-        text_surface = font.render('DESCOLIDIU', False, 'GREEN')
+ # player_rect.left += 1
