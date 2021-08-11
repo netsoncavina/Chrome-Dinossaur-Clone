@@ -74,6 +74,34 @@ def collision(player,obstacle):
         if obstacle.colliderect(player):
             return True
 
+def player_animation():
+    global player_surface, player_index
+
+    if player_rect.bottom < 300:
+        player_surface = player_jump
+    else:
+        player_index += 0.1
+        if player_index >= len(player_walk):
+            player_index = 0
+        player_surface = player_walk[int(player_index)]
+
+def snail_animation():
+    global snail_surface, snail_index
+
+    snail_index += 0.05
+    if snail_index >= len(snail_walk):
+        snail_index = 0
+    snail_surface = snail_walk[int(snail_index)]
+
+def fly_animation():
+    global fly_surface, fly_index
+
+    fly_index += 0.05
+    if fly_index >= len(fly_fly):
+        fly_index = 0
+    fly_surface = fly_fly[int(fly_index)]
+
+
 pygame.init() #Inicializar o pygame
 # Medidas da tela
 largura  = 800
@@ -91,15 +119,28 @@ sky_surface = pygame.image.load("graphics/Sky.png").convert() # .convert() ajuda
 ground_surface = pygame.image.load("graphics/ground.png").convert()
 
 # Obstacles 
-snail_surface = pygame.image.load("graphics/snail/snail1.png").convert_alpha() # _alpha é utilizado para manter os valores alpha originais
-# snail_rect = snail_surface.get_rect(midbottom = (600,300))
+snail_1 = pygame.image.load("graphics/snail/snail1.png").convert_alpha() # _alpha é utilizado para manter os valores alpha originais
+snail_2 = pygame.image.load("graphics/snail/snail2.png").convert_alpha()
+snail_walk = [snail_1,snail_2]
+snail_index = 0
+snail_surface = snail_walk[snail_index]
 
-fly_surface = pygame.image.load("graphics/Fly/Fly1.png").convert_alpha()
-# fly_rect = fly_surface.get_rect(center = (600,200))
+fly_1 = pygame.image.load("graphics/Fly/Fly1.png").convert_alpha()
+fly_2 = pygame.image.load("graphics/Fly/Fly2.png").convert_alpha()
+fly_fly = [fly_1,fly_2]
+fly_index = 0
+fly_surface = fly_fly[fly_index]
+
+
 
 obstacle_rect_list = []
 
-player_surface = pygame.image.load("graphics/Player/player_walk_1.png").convert_alpha()
+player_walk_1 = pygame.image.load("graphics/Player/player_walk_1.png").convert_alpha()
+player_walk_2 = pygame.image.load("graphics/Player/player_walk_2.png").convert_alpha()
+player_walk = [player_walk_1,player_walk_2]
+player_index = 0
+player_jump = pygame.image.load("graphics/Player/jump.png").convert_alpha()
+player_surface = player_walk[player_index]
 player_rect = player_surface.get_rect(midbottom = (80,300)) # Cria um retângulo em volta da imagem e define o ponto de origem
 player_gravity = 0
 
@@ -148,9 +189,12 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
         player_rect.y += player_gravity
         if player_rect.bottom >= 300:
             player_rect.bottom = 300
+        player_animation()
         screen.blit(player_surface,player_rect)
 
         # Obstacle movement
+        snail_animation()
+        fly_animation()
         obstacle_rect_list = obstacle_movement(obstacle_rect_list)
 
         # Colisão 
