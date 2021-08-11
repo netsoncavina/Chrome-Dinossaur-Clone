@@ -1,5 +1,6 @@
 import pygame
 import pickle
+from random import randint
 from sys import exit
 
 def display_score():
@@ -53,6 +54,26 @@ def game_over():
     screen.blit(player_stand,player_stand_rect)
     screen.blit(game_over_surface,game_over_rect)
 
+def obstacle_movement(obstacle_list):
+    if obstacle_list:
+        for obstacle_rect in obstacle_list:
+            obstacle_rect.x -= 5
+            
+            if obstacle_rect.bottom == 300:
+                screen.blit(snail_surface,obstacle_rect)
+            else:
+                screen.blit(fly_surface,obstacle_rect)
+        
+        obstacle_list = [obstacle for obstacle in obstacle_list if obstacle.x > -100] # Deleta os obstaculos que sairem da tela
+
+        return obstacle_list
+    else: return []
+
+def collision(player,obstacle):
+    for obstacle in obstacle_rect_list:
+        if obstacle.colliderect(player):
+            return True
+
 pygame.init() #Inicializar o pygame
 # Medidas da tela
 largura  = 800
@@ -69,22 +90,29 @@ high_score = 0
 sky_surface = pygame.image.load("graphics/Sky.png").convert() # .convert() ajuda o pygame a trabalhar melhor com as imagens
 ground_surface = pygame.image.load("graphics/ground.png").convert()
 
+# Obstacles 
 snail_surface = pygame.image.load("graphics/snail/snail1.png").convert_alpha() # _alpha é utilizado para manter os valores alpha originais
-snail_rect = snail_surface.get_rect(midbottom = (600,300))
+# snail_rect = snail_surface.get_rect(midbottom = (600,300))
+
+fly_surface = pygame.image.load("graphics/Fly/Fly1.png").convert_alpha()
+# fly_rect = fly_surface.get_rect(center = (600,200))
+
+obstacle_rect_list = []
 
 player_surface = pygame.image.load("graphics/Player/player_walk_1.png").convert_alpha()
 player_rect = player_surface.get_rect(midbottom = (80,300)) # Cria um retângulo em volta da imagem e define o ponto de origem
 player_gravity = 0
+
+# Timer
+obstacle_timer = pygame.USEREVENT + 1
+pygame.time.set_timer(obstacle_timer,1500)
+
 
 while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit() # Finaliza o .init()
             exit() # Para finalizar sem erro
-
-        # if event.type == pygame.MOUSEBUTTONDOWN: # Mecânica de pulo, mas com o mouse 
-        #     if player_rect.collidepoint(event.pos) and player_rect.bottom >= 300:
-        #         player_gravity = -20
 
         if game_state == 0:
             # Intro screen
@@ -93,9 +121,14 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
             if event.type == pygame.KEYDOWN: # Verifica se um botão do teclado foi pressionado
                 if event.key == pygame.K_SPACE and player_rect.bottom >= 300: # Verifica se o botão pressionado foi a barra de espaço e se o player está no chão 
                     player_gravity = -20
+            if event.type == obstacle_timer:
+                if randint(0,2):
+                    obstacle_rect_list.append(snail_surface.get_rect(midbottom = (randint(900,1100),300)))
+                else:
+                    obstacle_rect_list.append(fly_surface.get_rect(midbottom = (randint(900,1100),210)))
         else:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                snail_rect.left = 820
+                obstacle_rect_list = []
                 start_time = pygame.time.get_ticks()
                 game_state = 1
 
@@ -105,13 +138,10 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
 
         score = display_score()
        
-        # player_rect.left += 1
-        snail_rect.x -= 5
-        if snail_rect.right <= 0:
-            snail_rect.left = 820
-
-        # Snail   
-        screen.blit(snail_surface,snail_rect)
+        # snail_rect.x -= 5
+        # if snail_rect.right <= 0:
+        #     snail_rect.left = 820
+        # screen.blit(snail_surface,snail_rect)
          
         # Player
         player_gravity += 1
@@ -120,8 +150,11 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
             player_rect.bottom = 300
         screen.blit(player_surface,player_rect)
 
-        # Colisão player snail
-        if snail_rect.colliderect(player_rect):
+        # Obstacle movement
+        obstacle_rect_list = obstacle_movement(obstacle_rect_list)
+
+        # Colisão 
+        if collision(player_rect, obstacle_rect_list):
             game_state = 2
     elif game_state == 2: # "Game Over"
         game_over()
