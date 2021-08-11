@@ -79,6 +79,19 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect.x -= 6
         self.destroy()
 
+def display_title():
+    player_stand = pygame.image.load('graphics\Player\player_stand.png').convert_alpha()
+    player_stand = pygame.transform.rotozoom(player_stand,0,2)
+    player_stand_rect = player_stand.get_rect(center = (400,200))
+    title_surface = font.render("Alien Run", False, (111,196,169)) 
+    title_rect = title_surface.get_rect(center = (400,50))
+    screen.fill((94,129,162))
+    screen.blit(player_stand,player_stand_rect)
+    screen.blit(title_surface,title_rect)
+    start_surface = font.render("Pressione o mouse",False,(111,196,169))
+    start_rect = start_surface.get_rect(center = (400,350))
+    screen.blit(start_surface,start_rect)
+
 def display_score():
     current_time = pygame.time.get_ticks() - start_time
     score_atual = int(current_time/500)
@@ -102,18 +115,11 @@ def high_score_show():
     high_score_rect = high_score_surface.get_rect(center = (130,120))
     screen.blit(high_score_surface,high_score_rect)
 
-def display_title():
-    player_stand = pygame.image.load('graphics\Player\player_stand.png').convert_alpha()
-    player_stand = pygame.transform.rotozoom(player_stand,0,2)
-    player_stand_rect = player_stand.get_rect(center = (400,200))
-    title_surface = font.render("Alien Run", False, (111,196,169)) 
-    title_rect = title_surface.get_rect(center = (400,50))
-    screen.fill((94,129,162))
-    screen.blit(player_stand,player_stand_rect)
-    screen.blit(title_surface,title_rect)
-    start_surface = font.render("Pressione o mouse",False,(111,196,169))
-    start_rect = start_surface.get_rect(center = (400,350))
-    screen.blit(start_surface,start_rect)
+def collision_sprite():
+    if pygame.sprite.spritecollide(player.sprite,obstacle_group,False):
+        obstacle_group.empty()
+        return True
+    else: return False
 
 def game_over():
     screen.fill("Black")
@@ -128,12 +134,6 @@ def game_over():
     screen.blit(continue_surface,continue_rect)
     screen.blit(player_stand,player_stand_rect)
     screen.blit(game_over_surface,game_over_rect)
-
-def collision_sprite():
-    if pygame.sprite.spritecollide(player.sprite,obstacle_group,False):
-        obstacle_group.empty()
-        return True
-    else: return False
 
 pygame.init() #Inicializar o pygame
 
@@ -158,8 +158,6 @@ start_sound.set_volume(0.5)
 death_sound = pygame.mixer.Sound("audio/death.wav")
 game_over_sound = pygame.mixer.Sound("audio/game_over.wav")
 
-
-
 # Groups
 player = pygame.sprite.GroupSingle()
 player.add(Player()) 
@@ -172,7 +170,6 @@ ground_surface = pygame.image.load("graphics/ground.png").convert()
 # Timer
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer,1500)
-
 
 while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
     for event in pygame.event.get():
