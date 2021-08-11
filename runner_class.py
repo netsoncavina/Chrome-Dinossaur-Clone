@@ -1,27 +1,30 @@
 import pygame
+import pickle
 from sys import exit
 
-
-# Medidas da tela
-largura  = 800
-altura = 400
-
-def display_score(posicao_score):
+def display_score():
     current_time = pygame.time.get_ticks() - start_time
     score_atual = int(current_time/500)
-    
     score_surface = font.render(f'{score_atual}', False, (64,64,64)) # Renderiza a fonte (texto, arredondar as bordas, cor)
-    # elif state == 2:
-    #     score_surface = font.render(f'{score_final}', False, (64,64,64))
-    # score_rect = score_surface.get_rect(center = (400,50))
-    score_rect = score_surface.get_rect(center = posicao_score)
+    score_rect = score_surface.get_rect(center = (400,50))
     # Fundo para o score
     pygame.draw.rect(screen,(192,232,236),score_rect)
     pygame.draw.rect(screen,(192,232,236),score_rect,10)
     screen.blit(score_surface,score_rect)
+    return score_atual
 
-    
-    
+def high_score_update(score_atual, high_score):
+    if score_atual > high_score:
+            high_score = score_atual
+            # Saving score
+            pickle.dump(high_score, open("high_score.dat", "wb"))
+
+
+def high_score_show():
+    high_score_data = pickle.load(open("high_score.dat", "rb"))
+    high_score_surface = font.render(f'High Score: {high_score_data}', True, "Red")
+    high_score_rect = high_score_surface.get_rect(center = (130,120))
+    screen.blit(high_score_surface,high_score_rect)
 
 def display_title():
     player_stand = pygame.image.load('graphics\Player\player_stand.png').convert_alpha()
@@ -51,12 +54,17 @@ def game_over():
     screen.blit(game_over_surface,game_over_rect)
 
 pygame.init() #Inicializar o pygame
+# Medidas da tela
+largura  = 800
+altura = 400
 screen = pygame.display.set_mode((largura,altura))
 pygame.display.set_caption('Alien Run')
 clock = pygame.time.Clock() # Clock para definir FPS
 font = pygame.font.Font("font/Pixeltype.ttf",50) # Escolha da fonte para os textos (font_type,font_size)
 game_state = 0 # Define o estado do jogo: 0 = Tela inicial, 1 = in game, 2 = Game Over
 start_time = 0
+score = 0
+high_score = 0
 
 sky_surface = pygame.image.load("graphics/Sky.png").convert() # .convert() ajuda o pygame a trabalhar melhor com as imagens
 ground_surface = pygame.image.load("graphics/ground.png").convert()
@@ -91,16 +99,14 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
                 start_time = pygame.time.get_ticks()
                 game_state = 1
 
-      
-
     if game_state == 1: # Estado "jogavel"
         screen.blit(sky_surface,(0,0)) # Coloca uma superficie sobre a outra (superficie,posição) 
         screen.blit(ground_surface,(0,300))
 
-        display_score((400,50))
+        score = display_score()
        
         # player_rect.left += 1
-        snail_rect.x -= 4
+        snail_rect.x -= 5
         if snail_rect.right <= 0:
             snail_rect.left = 820
 
@@ -119,9 +125,13 @@ while True: # Tudo que é mostrado e atualizado, fica dentro dessa condição
             game_state = 2
     elif game_state == 2: # "Game Over"
         game_over()
+        high_score = pickle.load(open("high_score.dat", "rb"))
+        high_score_update(score,high_score)
+        high_score_show()
+        score_surface = font.render(f'Score: {score}', True, "Red") # Renderiza a fonte (texto, arredondar as bordas, cor)
+        score_rect = score_surface.get_rect(center = (100,200))
+        screen.blit(score_surface,score_rect)
         
-        
-
     pygame.display.update()
     clock.tick(60) # FPS
     
